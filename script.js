@@ -15,9 +15,13 @@ function retrieve(key) {
 }
 
 function getRandomArbitrary(min, max) {
-  let cached;
-  cached = Math.random() * (max - min) + min;
-  cached = Math.floor(cached);
+  let cached = retrieve('original');
+  if (cached) {
+    return parseInt(cached);
+  }
+  
+  cached = Math.floor(Math.random() * (max - min) + min);
+  store('original', cached.toString());
   return cached;
 }
 
@@ -50,7 +54,8 @@ async function getSHA256Hash() {
     return cached;
   }
 
-  cached = await sha256(getRandomArbitrary(MIN, MAX));
+  const number = getRandomArbitrary(MIN, MAX);
+  cached = await sha256(number.toString());
   store('sha256', cached);
   return cached;
 }
@@ -59,6 +64,7 @@ async function main() {
   sha256HashView.innerHTML = 'Calculating...';
   const hash = await getSHA256Hash();
   sha256HashView.innerHTML = hash;
+  console.log('The correct number is:', retrieve('original'));
 }
 
 async function test() {
